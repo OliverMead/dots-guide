@@ -29,7 +29,7 @@ with parent branches.
 I expect we will be working simultaneously so we can work out any issues, talk
 about problems etc. together.
 *** Domain Reload
-As noted in the =entities= documentation [cite:@entities], Domain Reload occurs when entering play
+As noted in the =entities= documentation \cite{entities}, Domain Reload occurs when entering play
 mode within the editor, and is especially slow when using DOTS. To disable this,
 enable the "=Enter Play Mode Settings=" checkbox in the =Editor= section of the
 Project Settings, while leaving its child options unchecked.
