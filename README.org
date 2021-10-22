@@ -1,0 +1,47 @@
+#+TITLE: DOTS Info
+
+* Preface, "Why?"
+Unity is in the midst of a transformation that will fundamentally change the way
+games are written. While those changes are not in the mainstream distribution of
+the engine, it is imminent. This document aims to consolidate and summarise
+information on the requirements and use of this new Data-Oriented Technology
+Stack, and serve as a reference for project setup and development in the future.
+
+It is still a good idea to learn the `classic', object-oriented approach taken
+by both our game development module and the current series of learning materials
+that Unity provides. Much of the programming, concepts and techniques will still
+be useful and will still be necessary with some changes.
+* Required Packages
+** DOTS Packages
+Installing the DOTS packages requires opening the Package Manger within the
+project (Select =Window > Package Manager=), then add by name (select from the
+drop-down "+" menu). Enter the following package names (one at a time):
++ =com.unity.entities=
++ =com.unity.rendering.hybrid=
++ =com.unity.dots.editor=
++ =com.unity.physics= \leftarrow The re-implementation of the physics engine built on DOTS
+These packages are marked experimental, so be sure to save often and make use of
+good version control practices. Be sure to push changes to the remote repository
+often, and use branches when writing and testing new functionality before merging
+with parent branches.
+
+I expect we will be working simultaneously so we can work out any issues, talk
+about problems etc. together.
+*** Domain Reload
+As noted in the =entities= documentation, Domain Reload occurs when entering play
+mode within the editor, and is especially slow when using DOTS. To disable this,
+enable the "=Enter Play Mode Settings=" checkbox in the =Editor= section of the
+Project Settings, while leaving its child options unchecked.
+* Platform Packages
+It is also necessary to install the DOTS based platform packages for Unity (The
+default tool-chains will not be replaced by default).
+
+Install, in the same way as above, the =com.unity.platforms.<platform>= packages,
+where =<platform>= is the desired target, for example I will install =com.unity.platforms.linux=
+and =com.unity.platforms.windows= to produce binaries for Linux and Windows.
+* Builds
+Building through the standard =File > Build and Run= or =<ctrl+b>= will not work
+with DOTS. You must create a `Classic Build Configuration` for each target
+platform through the asset manager: =+ > Build > <Platform> Classic Build
+Configuration=. From now on you must build the project by selecting this
+configuration and using the options shown in the inspector.
