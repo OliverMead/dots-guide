@@ -7,7 +7,7 @@ the engine, it is imminent. This document aims to consolidate and summarise
 information on the requirements and use of this new Data-Oriented Technology
 Stack, and serve as a reference for project setup and development in the future.
 
-It is still a good idea to learn the `classic', object-oriented approach taken
+It is still a good idea to learn the "classic", object-oriented approach taken
 by both our game development module and the current series of learning materials
 that Unity provides. Much of the programming, concepts and techniques will still
 be useful and will still be necessary with some changes.
@@ -41,7 +41,7 @@ where =<platform>= is the desired target, for example I will install =com.unity.
 and =com.unity.platforms.windows= to produce binaries for Linux and Windows.
 * Builds
 Building through the standard =File > Build and Run= or =<ctrl+b>= will not work
-with DOTS. You must create a `Classic Build Configuration` for each target
+with DOTS. You must create a "Classic Build Configuration" for each target
 platform through the asset manager: =+ > Build > <Platform> Classic Build
 Configuration=. From now on you must build the project by selecting this
 configuration and using the options shown in the inspector.
