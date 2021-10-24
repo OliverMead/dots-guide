@@ -1,5 +1,11 @@
 #+TITLE: DOTS Info
 
+* Table of Contents :TOC:
+- [[#preface-why][Preface, "Why?"]]
+- [[#required-packages][Required Packages]]
+  - [[#dots-packages][DOTS Packages]]
+- [[#platform-packages][Platform Packages]]
+- [[#builds][Builds]]
 
 * Preface, "Why?"
 Unity is in the midst of a transformation that will fundamentally change the way
