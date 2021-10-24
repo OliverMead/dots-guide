@@ -6,7 +6,9 @@
   - [[#dots-packages][DOTS Packages]]
 - [[#platform-packages][Platform Packages]]
 - [[#builds][Builds]]
-- [[#entities][Entities]]
+- [[#entity-component-systems][Entity-Component-Systems]]
+  - [[#comparison-of-models][Comparison of Models]]
+  - [[#transformation-of-data][Transformation of Data]]
 
 * Preface, "Why?"
 Unity is in the midst of a transformation that will fundamentally change the way
@@ -57,7 +59,8 @@ platform through the asset manager:
 
 From now on you must build the project by selecting this configuration and using
 the options shown in the inspector.
-* Entities
+* Entity-Component-Systems
+** Comparison of Models
 In the standard OOP model of game development, functionality is tied to
 individual instances of objects. Each Monobehaviour (the class that from which
 all standard scripts inherit) has its own ~Start()~, ~Update()~, similar and
@@ -66,13 +69,13 @@ accompanying methods. The engine will run all of these sequentially.
 In this model, each game object is treated as a collection of data (the entity),
 with this data organised into "components". These components are analogous to a
 struct in C, they are mutable collections of data, they do not have their own
-functionality in the form of methods.
-
+functionality (methods).
+** Transformation of Data
 It is the job of a =System= to read and transform the data of the entities. For
 example you may have many entities with a ~Character~ component, each with an
 ~hp~ variable. This will include all players, enemies and NPCs. Characters may
 be poisoned during the game, adding a ~Poison~ component to their entity. This
-component will contain a value ~float rate~ to determine how much damage to deal
+component will contain a value src_csharp[:exports code][float rate] to determine how much damage to deal
 each second, and a ~float duration~ to determine how long the character will be
 poisoned for.
 
@@ -83,6 +86,7 @@ the poison.
 
 What will this look like? Within the StatusSystem's ~OnUpdate()~ method:
 #+begin_src csharp :exports code
+// only local variables are captured in the lambda unless otherwise specified
 float dT = Time.DeltaTime;
 
 Entities
