@@ -75,7 +75,7 @@ It is the job of a =System= to read and transform the data of the entities. For
 example you may have many entities with a ~Character~ component, each with an
 ~hp~ variable. This will include all players, enemies and NPCs. Characters may
 be poisoned during the game, adding a ~Poison~ component to their entity. This
-component will contain a value src_csharp[:exports code][float rate] to determine how much damage to deal
+component will contain a value src_csharp[:exports code]{float rate} to determine how much damage to deal
 each second, and a ~float duration~ to determine how long the character will be
 poisoned for.
 
