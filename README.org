@@ -198,6 +198,6 @@ Input component to that empty. Then attach a ~MonoBehaviour~ to the empty,
 having all the callback methods store the movement data in the fields of a
 static class (in my case named ~Input Capture~).
 
-/I encourage any person reading this, who knows of an easier way to go about
+{\em I encourage any person reading this, who knows of an easier way to go about
 combining DOTS and the Input System, to submit a pull request or otherwise
-contact me./
+contact me.}
