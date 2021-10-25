@@ -20,6 +20,7 @@ Please note that this document is a work in progress, and will be expanded in ti
   - [[#a-c-job-to-collect-events][A C# Job to Collect Events]]
   - [[#the-dynamic-buffer-component][The Dynamic Buffer Component]]
   - [[#collisionsystem][CollisionSystem]]
+- [[#camera-following-an-entity][Camera Following an Entity]]
 
 * Preface, "Why?"
 Unity is in the midst of a transformation that will fundamentally change the way
@@ -268,3 +269,4 @@ To summarise this system, it performs the following operations:
 + Collect entities with a trigger event buffer
 + Update the States of the trigger events
 + Add the trigger events to the respective buffers
+* TODO Camera Following an Entity
