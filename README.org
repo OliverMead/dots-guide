@@ -15,6 +15,11 @@ Please note that this document is a work in progress, and will be expanded in ti
 - [[#in-the-editor][In the Editor]]
   - [[#physics][Physics]]
   - [[#the-unity-input-system][The Unity Input System]]
+- [[#capturing-trigger-events-physics][Capturing Trigger Events (Physics)]]
+  - [[#state][State]]
+  - [[#a-c-job-to-collect-events][A C# Job to Collect Events]]
+  - [[#the-dynamic-buffer-component][The Dynamic Buffer Component]]
+  - [[#collisionsystem][CollisionSystem]]
 
 * Preface, "Why?"
 Unity is in the midst of a transformation that will fundamentally change the way
@@ -77,8 +82,8 @@ all standard scripts inherit) has its own ~Start()~, ~Update()~, similar and
 accompanying methods. The engine will run all of these sequentially.
 
 In this model, each game object is treated as a collection of data (the entity),
-with this data organised into "components". These components are analogous to a
-struct in C, they are mutable collections of data, they do not have their own
+with this data organised into "components". These components are like a struct
+in C, they are mutable collections of data, they do not normally have their own
 functionality (methods).
 ** Transformation of Data
 It is the job of a =System= to read and transform the data of the entities. For
@@ -175,7 +180,7 @@ Components to the editor in the form of an *Authoring Component*, a
 ~MonoBehaviour~ which tells the editor how to create the Component based on the
 settings you give the inspector. In the concrete example, I used the
 ~[GenerateAuthoringComponent]~ tag to generate this MonoBehaviour automatically,
-but you can also define your own - it must implement ~IConvertGameObjectToEntity~
+but you can also [[https://github.com/OliverMead/Rollaball-DOTS/blob/main/Assets/Scripts/PlayerAuth.cs][define your own]] - it must implement ~IConvertGameObjectToEntity~
 as well as extending ~MonoBehaviour~.
 ** Physics
 The old physics system is not compatible with DOTS, that means unity components
@@ -190,8 +195,6 @@ the object:
 + Dynamic - standard RigidBody behaviour
 + Kinematic - like RigidBody with the ~isKinematic~ flag checked
 + Static - The object does not move
-*** Capturing Trigger Events
-This is rather complex, but the setup code is readily reusable
 ** The Unity Input System
 Unity has a very useful input package (~com.unity.inputsystem~), which lets the
 developer define simple methods like ~OnMove(InputValue)~ to create gameplay.
@@ -212,3 +215,56 @@ I encourage any person reading this, who knows of an easier way to go about
 combining DOTS and the Input System, to submit a pull request or otherwise
 contact me.
 #+end_quote
+* Capturing Trigger Events (Physics)
+Capturing trigger events using standard Unity's Colliders is simple:
++ Mark the trigger object's collider to be a trigger
++ Add a collider to the object you'd like to have react to the trigger
++ Define the ~OnTriggerEnter(Collider)~ method in a MonoBehaviour attached to that object.
+DOTS affords us no such luxury or convenience. It is up to the developer to
+define a job to respond to ~TriggerEvent~ occurrences. This is rather complex,
+but the setup code is readily reusable. I will be referring to [[https://github.com/OliverMead/Rollaball-DOTS/blob/main/Assets/Scripts/CollisionSystem.cs][CollisionSystem.cs]]
+in the Rollaball-DOTS project. As noted at the top of that file, it is adapted from
+a Physics sample provided by Unity Technologies, which you may also wish to inspect.
+** State
+TriggerEvents are not stateful. Therefore we cannot determine, simply by
+inspecting the event, whether the Colliders first intersected on the current
+frame or on any frame previously.
+
+So I define an enumeration - ~EventOverlapState~ with fields ~Enter~, ~Stay~ and
+~Exit~ - and a structure ~StatefulTriggerEvent~, which will have all the same
+data as a ~TriggerEvent~, plus a field holding the state.
+
+This structure will be used with a Dynamic Buffer Component (glorified list
+associated with an entity) later, so it implements ~IBufferElementData~, and
+will need to be compared against other instances, so implements
+~IComparable<StatefulTriggerEvent>~.
+** A C# Job to Collect Events
+Event types have their own Job Interfaces. Create an implementation of the right
+interface, schedule it at the appropriate time, and it will "receive" events.
+
+The ~CollisionSystem~ in this example has a member structure
+~CollectTriggerEvents~ implementing ~ITriggerEventsJob~. The ~Execute~ method
+creates a ~StatefulTriggerEvent~ from the given event, and adds it to the list.
+
+It is the role of the surrounding system to schedule this job and make use of
+the events it captures.
+** The Dynamic Buffer Component
+[[https://github.com/OliverMead/Rollaball-DOTS/blob/main/Assets/Scripts/TriggerEventBufferAuth.cs][TriggerEventBufferAuth]] is an authoring component which will give a GameObject's
+entity a ~DynamicBuffer<StatefulTriggerEvent>~ component, which the developer
+will access in the same way as other components, and iterate over in the same
+way as a list. Once an entity has this component, the ~CollisionSystem~ will
+update the buffer every frame with the data of any ~TriggerEvents~ involving the
+entity.
+
+It is important, so that no events are missed, that any system which
+reads this buffer be updated every frame (by using the ~[AlwaysUpdateSystem]~
+class attribute), after the physics systems (by using the
+~[UpdateAfter(typeof(EndFramePhysicsSystem))]~ class attribute).
+** TODO CollisionSystem
+To summarise this system, it performs the following operations:
++ Clear all trigger event buffers
++ Move current frame triggers to previous
++ Collect trigger events for the frame
++ Collect entities with a trigger event buffer
++ Update the States of the trigger events
++ Add the trigger events to the respective buffers
