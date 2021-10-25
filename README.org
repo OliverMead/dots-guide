@@ -10,6 +10,9 @@
   - [[#comparison-of-models][Comparison of Models]]
   - [[#transformation-of-data][Transformation of Data]]
   - [[#concrete-example][Concrete example]]
+- [[#in-the-editor][In the Editor]]
+  - [[#physics][Physics]]
+- [[#the-unity-input-system][The Unity Input System]]
 
 * Preface, "Why?"
 Unity is in the midst of a transformation that will fundamentally change the way
@@ -134,14 +137,15 @@ public partial class StatusSystem : SystemBase {
             .CreateCommandBuffer().AsParallelWriter();
 
         Entities
+            .WithName("Apply Poison Damage") // The name for the job (optional)
             .WithAll<Character, Poison>() // Only iterate over poisoned characters
             .ForEach(
                 // define the lambda that transforms the data
-                (ref Character ch, ref Poison poison, in Entity entity) => {
+                (int entityIndex, ref Character ch, ref Poison poison, in Entity entity) => {
                 ch.hp -= poison.rate * dT;
                 poison.duration -= dT;
                 if (poison.duration <= 1) // remove the poison component if it has expired
-                    ecb.RemoveComponent<Poison>(entity); // using the Entity Command Buffer
+                    ecb.RemoveComponent<Poison>(entityIndex, entity); // using the Entity Command Buffer
                 })
             .WithBurst() // free performance enhancement from the 'Burst Compiler'
             .ScheduleParallel();
@@ -157,3 +161,43 @@ Some keywords are used in the lambda definition that relate to C#'s implementati
 + ~in~ creates an immutable reference to the argument (here we are not modifying
   ~entity~, only passing the reference to the ~EntityCommandBuffer~ in order to remove
   the component)
+* In the Editor
+In the Unity Editor, create objects and materials as normal. You can still use
+prefabs, but some unity components (separate to DOTS Components) should be
+exchanged for their counterparts in the new packages. The packages expose DOTS
+Components to the editor in the form of an *Authoring Component*, a
+~MonoBehaviour~ which tells the editor how to create the Component based on the
+settings you give the inspector. In the concrete example, I used the
+~[GenerateAuthoringComponent]~ tag to generate this MonoBehaviour automatically,
+but you can also define your own - it must implement ~IConvertGameObjectToEntity~
+as well as extending ~MonoBehaviour~.
+** Physics
+The old physics system is not compatible with DOTS, that means unity components
+like Colliders and RigidBody are not to be used.
+*** Physics Shape
+The counterpart to Colliders is the ~Physics Shape~ authoring Component.
+Add it to the GameObject, set up the shape of the collider, and set the
+collision response behaviour (Collide or trigger normally suffice).
+*** Physics Body
+This authoring component replaces RigidBody. Set the Motion Type appropriately for
+the object:
++ Dynamic - standard RigidBody behaviour
++ Kinematic - like RigidBody with the ~isKinematic~ flag checked
++ Static - The object does not move
+*** Capturing Trigger Events
+This is rather complex, but the setup code is readily reusable
+* The Unity Input System
+Unity has a very useful input package (~com.unity.inputsystem~), which lets the
+developer define simple methods like ~OnMove(InputValue)~ to create gameplay.
+One fatal flaw is that it is (at time of writing) fundamentally incompatible
+with entities.
+
+The (almost criminal) workaround I have found is to create an "InputProxy" empty
+game object, which will not be converted to an entity, and apply the Player
+Input component to that empty. Then attach a ~MonoBehaviour~ to the empty,
+having all the callback methods store the movement data in the fields of a
+static class (in my case named ~Input Capture~).
+
+/I encourage any person reading this, who knows of an easier way to go about
+combining DOTS and the Input System, to submit a pull request or otherwise
+contact me./
