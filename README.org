@@ -75,6 +75,11 @@ platform through the asset manager:
 
 From now on you must build the project by selecting this configuration and using
 the options shown in the inspector.
+
+Be sure to add the game's scenes to the Scene List of the build configurations
+you create, as these will not be inherited from the regular build manager. You
+should also add a Live Link component in order to use that functionality of the
+editor.
 * Entity-Component-Systems
 ** Comparison of Models
 In the standard OOP model of game development, functionality is tied to
