@@ -1,5 +1,7 @@
 #+TITLE: DOTS Info
 
+Please note that this document is a work in progress, and will be expanded in time.
+
 * Table of Contents :TOC:
 - [[#preface-why][Preface, "Why?"]]
 - [[#required-packages][Required Packages]]
@@ -12,7 +14,7 @@
   - [[#concrete-example][Concrete example]]
 - [[#in-the-editor][In the Editor]]
   - [[#physics][Physics]]
-- [[#the-unity-input-system][The Unity Input System]]
+  - [[#the-unity-input-system][The Unity Input System]]
 
 * Preface, "Why?"
 Unity is in the midst of a transformation that will fundamentally change the way
@@ -22,9 +24,13 @@ information on the requirements and use of this new Data-Oriented Technology
 Stack, and serve as a reference for project setup and development in the future.
 
 It is still a good idea to learn the "classic", object-oriented approach taken
-by both our game development module and the current series of learning materials
-that Unity provides. Much of the programming, concepts and techniques will still
-be useful and will still be necessary with some changes.
+by the current series of learning materials that Unity provides. Much of the
+programming, concepts and techniques will still be useful and will still be
+necessary with some changes.
+
+I make frequent reference to my efforts to rewrite the "Rollaball" Unity
+tutorial project to make use of DOTS. You may wish to inspect that project
+yourself at [[https://github.com/OliverMead/Rollaball-DOTS][OliverMead/Rollaball-DOTS]].
 * Required Packages
 ** DOTS Packages
 Installing the DOTS packages requires opening the Package Manger within the
@@ -186,7 +192,7 @@ the object:
 + Static - The object does not move
 *** Capturing Trigger Events
 This is rather complex, but the setup code is readily reusable
-* The Unity Input System
+** The Unity Input System
 Unity has a very useful input package (~com.unity.inputsystem~), which lets the
 developer define simple methods like ~OnMove(InputValue)~ to create gameplay.
 One fatal flaw is that it is (at time of writing) fundamentally incompatible
@@ -194,10 +200,13 @@ with entities.
 
 The (almost criminal) workaround I have found is to create an "InputProxy" empty
 game object, which will not be converted to an entity, and apply the Player
-Input component to that empty. Then attach a ~MonoBehaviour~ to the empty,
-having all the callback methods store the movement data in the fields of a
-static class (in my case named ~Input Capture~).
+Input component to that empty. Then attach an [[https://github.com/OliverMead/Rollaball-DOTS/blob/main/Assets/Scripts/InputProxy.cs][InputProxy ~MonoBehaviour~]] to the
+empty, having all the callback methods store the movement data in the fields of
+a static class (in my case named [[https://github.com/OliverMead/Rollaball-DOTS//blob/main/Assets/Scripts/InputCapture.cs][InputCapture]]). You can then use that data within a
+[[https://github.com/OliverMead/Rollaball-DOTS/blob/main/Assets/Scripts/PlayerSystem.cs][player movement system]] (see the ~UpdateLocation~ method).
 
+While the linked examples are limited to only movement data, this can be
+expanded to include more data as per your requirements.
 #+begin_quote
 I encourage any person reading this, who knows of an easier way to go about
 combining DOTS and the Input System, to submit a pull request or otherwise
