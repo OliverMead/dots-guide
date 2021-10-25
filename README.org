@@ -9,6 +9,7 @@
 - [[#entity-component-systems][Entity-Component-Systems]]
   - [[#comparison-of-models][Comparison of Models]]
   - [[#transformation-of-data][Transformation of Data]]
+  - [[#concrete-example][Concrete example]]
 
 * Preface, "Why?"
 Unity is in the midst of a transformation that will fundamentally change the way
@@ -84,26 +85,75 @@ poisoning). It will operate on all of the entities with a ~Character~ /and/ a
 ~Poison~ component, and update the ~hp~ variable based on the data related to
 the poison.
 
-What will this look like? Within the StatusSystem's ~OnUpdate()~ method:
+What will this look like?
+** Concrete example
+We write ~Character.cs~ as a struct inheriting ~IComponentData~.
 #+begin_src csharp :exports code
-// only local variables are captured in the lambda unless otherwise specified
-float dT = Time.DeltaTime;
+using Unity.Entities;
 
-Entities
-  .WithAll<Character, Poison>()
-  .ForEach(
-      // define the lambda that transforms the data
-    (ref Character ch, ref Poison poison, in Entity entity) => {
-      ch.hp -= poison.rate * dT;
-      poison.duration -= dT;
-      if (poison.duration <= 0) // remove the poison component if it has expired
-          EntityManager.RemoveComponent<Poison>(entity);
-    })
-  .ScheduleParallel();
+// This tag allows us to set the fields in the editor like with a MonoBehaviour
+[GenerateAuthoringComponent]
+public struct Character : IComponentData {
+    public float hp;
+}
+#+end_src
+
+~Poison.cs~ will also inherit ~IComponentData~, but we don't need the authoring
+component (since it would be added at runtime).
+#+begin_src csharp :exports code
+using Unity.Entities;
+
+public struct Poison : IComponentData {
+    public float rate;
+    public float duration;
+}
+#+end_src
+
+Finally the ~StatusSystem~, whose ~OnUpdate()~ method will perform the
+transformation of data. This benefits from parallel execution through the C# Job
+System.
+#+begin_src csharp :exports code
+using Unity.Entities;
+using UnityEngine;
+
+public partial class StatusSystem : SystemBase {
+    EndSimulationEntityCommandBufferSystem m_EndSimulationECBSystem;
+
+    protected override void OnCreate() {
+        base.OnCreate();
+        // This is how we make changes to the EntityManager within a job
+        m_EndSimulationECBSystem = World
+            .GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+    protected override void OnUpdate() {
+        // only local variables are captured in the lambda unless otherwise specified
+        float dT = Time.DeltaTime;
+
+        // create an entity command buffer suitable for parallel scheduled jobs
+        var ecb = m_EndSimulationECBSystem
+            .CreateCommandBuffer().AsParallelWriter();
+
+        Entities
+            .WithAll<Character, Poison>() // Only iterate over poisoned characters
+            .ForEach(
+                // define the lambda that transforms the data
+                (ref Character ch, ref Poison poison, in Entity entity) => {
+                ch.hp -= poison.rate * dT;
+                poison.duration -= dT;
+                if (poison.duration <= 1) // remove the poison component if it has expired
+                    ecb.RemoveComponent<Poison>(entity); // using the Entity Command Buffer
+                })
+            .Burst() // free performance enhancement from the 'Burst Compiler'
+            .ScheduleParallel();
+
+        // Tell the system what we need
+        m_EndSimulationECBSystem.AddJobHandlerForProducer(this.Dependency);
+    }
+}
 #+end_src
 
 Some keywords are used in the lambda definition that relate to C#'s implementation:
 + ~ref~ creates a mutable reference to the given argument
 + ~in~ creates an immutable reference to the argument (here we are not modifying
-  ~entity~, only passing the reference to the ~EntityManager~ in order to remove
+  ~entity~, only passing the reference to the ~EntityCommandBuffer~ in order to remove
   the component)
