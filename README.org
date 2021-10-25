@@ -200,7 +200,7 @@ with entities.
 
 The (almost criminal) workaround I have found is to create an "InputProxy" empty
 game object, which will not be converted to an entity, and apply the Player
-Input component to that empty. Then attach an [[https://github.com/OliverMead/Rollaball-DOTS/blob/main/Assets/Scripts/InputProxy.cs][InputProxy ~MonoBehaviour~]] to the
+Input component to that empty. Then attach an [[https://github.com/OliverMead/Rollaball-DOTS/blob/main/Assets/Scripts/InputProxy.cs][InputProxy MonoBehaviour]] to the
 empty, having all the callback methods store the movement data in the fields of
 a static class (in my case named [[https://github.com/OliverMead/Rollaball-DOTS//blob/main/Assets/Scripts/InputCapture.cs][InputCapture]]). You can then use that data within a
 [[https://github.com/OliverMead/Rollaball-DOTS/blob/main/Assets/Scripts/PlayerSystem.cs][player movement system]] (see the ~UpdateLocation~ method).
