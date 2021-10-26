@@ -263,15 +263,33 @@ update the buffer every frame with the data of any ~TriggerEvents~ involving the
 entity.
 
 It is important, so that no events are missed, that any system which
-reads this buffer be updated every frame (by using the ~[AlwaysUpdateSystem]~
+reads this buffer be updated every frame (by using the ~[ExecuteAlways]~
 class attribute), after the physics systems (by using the
 ~[UpdateAfter(typeof(EndFramePhysicsSystem))]~ class attribute).
-** TODO CollisionSystem
+** CollisionSystem
 To summarise this system, it performs the following operations:
-+ Clear all trigger event buffers
-+ Move current frame triggers to previous
-+ Collect trigger events for the frame
-+ Collect entities with a trigger event buffer
-+ Update the States of the trigger events
-+ Add the trigger events to the respective buffers
-* TODO Camera Following an Entity
++ Clear all trigger event buffers (see the job that has
+  ~.WithName("Clear_Trigger_Event_Buffers"))~
++ Move current frame triggers to previous (see ~FrameStartEventMove()~ in
+  ~CollisionSystem.cs~ and ~SwapTriggerEventStates()~ in the Unity sample, their
+  definitions are the same).
++ Collect trigger events for the frame (creating the job instance as
+  ~teCollectJob~ and scheduling it)
++ Collect entities with a trigger event buffer (job assigned to ~collectBuffers~ variable)
++ Update the States of the trigger events and add the trigger events to the
+  respective buffers (both part of the job named
+  ~"Convert_Trigger_Event_Stream_to_Dynamic_Buffers"~).
+* Camera Following an Entity
+The real question here is: how do you make a GameObject follow the translation
+of a given Entity? See [[https://github.com/OliverMead/Rollaball-DOTS/blob/main/Assets/Scripts/Object%20Follow%20Entity/FollowEntity.cs][FollowEntity]]. This is a MonoBehaviour which keeps a
+reference to the Entity Manager, and a copy of our desired entity (remember the
+entity is only a key to look up component data, so it is passed by value). The
+~LateUpdate~ method can then update the GameObject's transform in much the same
+way as it would if it were following another GameObject.
+
+The difference here is that you cannot assign an entity to follow within the
+editor like you would a GameObject. Instead, create an authoring component (here
+[[https://github.com/OliverMead/Rollaball-DOTS/blob/main/Assets/Scripts/Object%20Follow%20Entity/ObjectFollowAuth.cs][ObjectFollowAuth]]) for the entity you would like your GameObject to follow,
+assigning the ~follower~ field within the editor. This script will add the
+~FollowEntity~ MonoBehaviour to the follower, setting the correct ~Entity~
+field.
