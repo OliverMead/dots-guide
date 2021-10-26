@@ -21,6 +21,7 @@ Please note that this document is a work in progress, and will be expanded in ti
   - [[#the-dynamic-buffer-component][The Dynamic Buffer Component]]
   - [[#collisionsystem][CollisionSystem]]
 - [[#camera-following-an-entity][Camera Following an Entity]]
+  - [[#cinemachine][Cinemachine]]
 
 * Preface, "Why?"
 Unity is in the midst of a transformation that will fundamentally change the way
@@ -291,3 +292,7 @@ editor like you would a GameObject. Instead, create an authoring component (here
 assigning the ~follower~ field within the editor. This script will add the
 ~FollowEntity~ MonoBehaviour to the follower, setting the correct ~Entity~
 field.
+** Cinemachine
+Using Cinemachine is possible in this way by creating an empty GameObject,
+which will be the follower of the entity. Then set this empty GameObject as
+the follow target and look-at target for the Cinemachine virtual camera.
