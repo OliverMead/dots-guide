@@ -259,10 +259,11 @@ way as a list. Once an entity has this component, the ~CollisionSystem~ will
 update the buffer every frame with the data of any ~TriggerEvents~ involving the
 entity.
 
-It is important, so that no events are missed, that any system which
-reads this buffer be updated every frame (by using the ~[ExecuteAlways]~
-class attribute), after the physics systems (by using the
-~[UpdateAfter(typeof(EndFramePhysicsSystem))]~ class attribute).
+It is important, so that no events are missed, that any system which reads this
+buffer be updated every frame (by using the ~[ExecuteAlways]~ class attribute),
+and perhaps after the physics systems (by using the
+~[UpdateAfter(typeof(EndFramePhysicsSystem))]~ class attribute), but I am not
+sure this is necessary.
 ** CollisionSystem
 To summarise this system, it performs the following operations:
 + Clear all trigger event buffers (see the job that has
