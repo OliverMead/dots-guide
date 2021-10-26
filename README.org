@@ -50,9 +50,6 @@ These packages are marked experimental, so be sure to save often and make use of
 good version control practices. Be sure to push changes to the remote repository
 often, and use branches when writing and testing new functionality before merging
 with parent branches.
-
-I expect we will be working simultaneously so we can work out any issues, talk
-about problems etc. together.
 *** Domain Reload
 As noted in the [[https://docs.unity3d.com/Packages/com.unity.entities@0.17/manual/install_setup.html][entities documentation]], Domain Reload occurs when entering play
 mode within the editor, and is especially slow when using DOTS. To disable this,
